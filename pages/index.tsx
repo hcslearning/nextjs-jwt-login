@@ -8,7 +8,7 @@ export default function Home() {
 
   const [loaded, setLoaded] = useState(false) 
   const [autorizado, setAutorizado] = useState(false) 
-  const [countdown, setCountdown] = useState(5)
+  const [countdown, setCountdown] = useState(3)
 
   useEffect( () => {
     // revisa que existe localStorage

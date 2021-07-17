@@ -1,7 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { usuarios } from '../../data/usuarios'
 
 export default (req:NextApiRequest, res:NextApiResponse) => {
   const action = req.query?.action
