@@ -9,6 +9,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false) 
   const [autorizado, setAutorizado] = useState(false) 
   const [countdown, setCountdown] = useState(3)
+  const [token, setToken] = useState('')
 
   useEffect( () => {
     // revisa que existe localStorage
@@ -27,7 +28,12 @@ export default function Home() {
     }
 
     if( !loaded ) {
-
+      const tokenFromStorage = localStorage.getItem('token')
+      setToken( tokenFromStorage )
+      if( tokenFromStorage?.length > 0) {
+        // TODO: revisar validez del token
+        setAutorizado(true)
+      }
       setLoaded(true)
     }
 

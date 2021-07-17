@@ -1,11 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next"
+import { Security } from "../../lib/Security"
 
 export default (req:NextApiRequest, res:NextApiResponse) => {
-  const action = req.query?.action
   let jsonData = null
-  const saltLength = 15
-  const encryptKey1 = 'abcdefgijklmnzyxwvuts2021'
+  const action = req.query?.action
+  const security = new Security()
+  security.setEncryptkey( req.headers['user-agent'] )
+  
   const dummyData = {patente: 'RB8102', propietario: 'María Mercedes Rebolledo Rebolledo'}
+  
 
   switch( action ) {
     case 'login':      
@@ -15,43 +18,24 @@ export default (req:NextApiRequest, res:NextApiResponse) => {
       }
       const email:string = req.body?.email
       const password:string = req.body?.password
-      let usuario = null 
-      
-      for(let i = 0; i < usuarios.length; i++) {
-        if( bcrypt.compareSync(password, usuarios[i].passwordEncoded) ) {
-          usuario = usuarios[i]
-          const encryptKey2 = req.headers['user-agent']
-          const privateKey = encryptKey1 + encryptKey2
-          const userToken = jwt.sign(usuario, privateKey, {expiresIn: "3h"}) 
-          jsonData = {
-            usuario: usuario.email,
-            token: userToken
-          }
-          break
-        }
-      }
+      let usuario = security.findUser(email, password)            
       if( usuario == null){
-        res.status(401).json({error: "Usuario no encontrado"})
+        return res.status(401).json({error: "Usuario no encontrado"})
       }
-
-      break
-    case 'verify':
-      if( req.query?.token ) {
-        const encryptKey2 = req.headers['user-agent']
-        const privateKey = encryptKey1 + encryptKey2
-        try {
-          const obj = jwt.verify(req.query?.token?.toString(), privateKey)
-          jsonData = obj  
-        } catch (error) {
-          return res.status(401).json({error: 'Usuario no autorizado.'})  
-        }
-      } else {
-        return res.status(400).json({error: 'Debe especificar un token.'})
+      let token = security.generateToken(usuario)
+      jsonData = {
+        usuario: usuario.email,
+        token
       }
       break
     case 'data':
-      const browser = req.headers['user-agent']      
-      jsonData = {accion: 'other', browser}
+      // metodo que necesita autenticacion vía token
+      const tokenHeader = req.headers['Authorization'].toString().replace('Bearer ', '')
+      jsonData = {tokenHeader}
+      break
+    case 'browser':
+      // metodo libre, sin necesidad de token
+      jsonData = {accion: 'other', browser: req.headers['user-agent']}
       break 
     default:      
       return res.status(400).json({error: 'Debe especificar una acción.'}) 

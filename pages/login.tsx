@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
 
 export interface ValidationObject {
@@ -8,6 +9,7 @@ export interface ValidationObject {
 }
 
 export default function Login(){
+    const router = useRouter()
     const defaultValidationObj:ValidationObject = {valid: false, message: ''}
     const [buttonDisabled, setButtonDisabled] = useState( false )
     const [email, setEmail] = useState( '' )    
@@ -66,15 +68,33 @@ export default function Login(){
         setPassword( contrasena )
     }
 
-    const formSubmit = () => {
+    const formSubmit = async () => {
         setButtonDisabled( true )
         if( emailValidationObj.valid && passwordValidationObj.valid ) {
+            const res = await fetch('/api/ws?action=login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify( {email, password} )
+            })
+        
+            if(res.status != 401 && res.status != 200) {                
+                setFormMessage('Ha ocurrido un error.')
+                return 
+            } else if(res.status == 401) {                
+                setFormMessage('Usuario y/o contraseña inválido.')
+                return 
+            }
+                
+            const d = await res.json()
+            if( d?.token ) {
+                localStorage.setItem('token', d?.token)
+                router.push('/')
+            }
 
-            return 
+        } else {
+            // formulario no valido
+            setFormMessage('Revise el usuario y la contraseña ingresadas en el formulario.')     
         }
-
-        // default error   
-        setFormMessage('Revise el usuario y la contraseña ingresadas en el formulario.')     
     }
 
     return (
