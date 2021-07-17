@@ -8,6 +8,7 @@ export default (req:NextApiRequest, res:NextApiResponse) => {
   let jsonData = null
   const saltLength = 15
   const encryptKey1 = 'abcdefgijklmnzyxwvuts2021'
+  const dummyData = {patente: 'RB8102', propietario: 'María Mercedes Rebolledo Rebolledo'}
 
   switch( action ) {
     case 'login':      
