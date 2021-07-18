@@ -23,11 +23,11 @@ export default (req:NextApiRequest, res:NextApiResponse) => {
       if( usuario == null){
         return res.status(401).json({error: "Usuario no encontrado"})
       }
-      let token = security.generateToken(usuario)
       jsonData = {
-        usuario: usuario.email,
-        token
+        usuario: usuario.email
       }
+      let token = security.generateToken( jsonData )
+      jsonData.token = token 
       break
     case 'data':
       // metodo que necesita autenticacion vía token      

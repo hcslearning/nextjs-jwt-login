@@ -12,8 +12,8 @@ export class TokenInvalidException {
 
 export class Security {
 
-    saltLength = 15
-    encryptKey = 'abcdefgijklmnzyxwvuts2021'
+    saltLength = 15 // usar como variables de ambiente privadas
+    encryptKey = 'abcdefgijklmnzyxwvuts2021' // usar como variables de ambiente privadas
 
     setEncryptkey(s:string) {
         this.encryptKey += s 
