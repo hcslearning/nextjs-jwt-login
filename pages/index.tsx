@@ -10,6 +10,22 @@ export default function Home() {
   const [autorizado, setAutorizado] = useState(false) 
   const [countdown, setCountdown] = useState(3)
   const [token, setToken] = useState('')
+  const [data, setData] = useState({patente:'', propietario: ''})
+
+  const loadData = async (authorizationToken) => {
+    console.log("Enviando peticion con token: "+authorizationToken)
+    const res = await fetch('/api/ws?action=data', {
+      method: 'GET',
+      headers: {              
+        'Authorization': 'Bearer '+authorizationToken              
+      }
+    })
+    if( res.status != 200 ) {
+      router.push('/login')
+    }
+    const dj = await res.json()              
+    setData(dj)
+  }
 
   useEffect( () => {
     // revisa que existe localStorage
@@ -30,8 +46,8 @@ export default function Home() {
     if( !loaded ) {
       const tokenFromStorage = localStorage.getItem('token')
       setToken( tokenFromStorage )
-      if( tokenFromStorage?.length > 0) {
-        // TODO: revisar validez del token
+      if( tokenFromStorage?.length > 0) {        
+        loadData(tokenFromStorage)
         setAutorizado(true)
       }
       setLoaded(true)
@@ -62,7 +78,12 @@ export default function Home() {
       { /* Acceso Autorizado */
         autorizado && 
         <>
-          <h1 className="mb-3">Dashboard</h1>  
+          <h1 className="mb-3">Data</h1>  
+          
+          <p>Patente: {data?.patente}</p>
+          <p>Propietario: {data?.propietario}</p>
+
+          <button className="btn btn-primary" onClick={() => {loadData(token)}}>Try again</button>
         </>
       }
 

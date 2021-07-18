@@ -9,6 +9,7 @@ export default (req:NextApiRequest, res:NextApiResponse) => {
   
   const dummyData = {patente: 'RB8102', propietario: 'María Mercedes Rebolledo Rebolledo'}
   
+  const tokenNoValido = () => res.status(401).json({error: 'Token no autorizado'})
 
   switch( action ) {
     case 'login':      
@@ -29,9 +30,14 @@ export default (req:NextApiRequest, res:NextApiResponse) => {
       }
       break
     case 'data':
-      // metodo que necesita autenticacion vía token
-      const tokenHeader = req.headers['Authorization'].toString().replace('Bearer ', '')
-      jsonData = {tokenHeader}
+      // metodo que necesita autenticacion vía token      
+      const tokenHeader = req.headers['authorization']?.toString()?.replace('Bearer ', '')
+      try {
+        security.verifyToken( tokenHeader )
+        jsonData = dummyData
+      } catch(err) {
+        return tokenNoValido()
+      }
       break
     case 'browser':
       // metodo libre, sin necesidad de token
